@@ -395,6 +395,8 @@ bool rabin_miller(bigint n, int iterations)
     bigint one, two; // an embarrasment
     one.words[WORDCNT - 1] = 1;
     two.words[WORDCNT - 1] = 2;
+    if (n < two)
+        return false;
     if (n == two || n == (one + two)) // yes please endure this as i add some quality of life so this doesnt have to happen
         return true;                  // only prime to be even
     if (n.is_even())

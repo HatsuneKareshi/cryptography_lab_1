@@ -38,7 +38,7 @@ public:
     bool operator>(const bigint &a);
     bool operator<(const bigint &a);
     bool operator>=(const bigint &a);
-    bool operator<=(const bigint &a); // FIX THESE THEY WRONG
+    bool operator<=(const bigint &a); //
 
     bool get_bit(int bit) const;       // 0th bit is the LEAST significant
     void set_bit(int bit, bool value); // same up top
