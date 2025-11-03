@@ -11,7 +11,7 @@ int main()
     std::cin >> inp;
     a.words[7] = inp;
     std::cout << a.debugstring() << "\n";
-    if (rabin_miller(a, 3))
+    if (rabin_miller(a, 5))
         std::cout << "prime" << "\n";
     else
         std::cout << "composite" << "\n";

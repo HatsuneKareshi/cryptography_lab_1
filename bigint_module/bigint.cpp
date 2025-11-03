@@ -379,7 +379,7 @@ bigint gcd(bigint a, bigint b)
 
 bigint random_bigint(bigint a, bigint b)
 {
-    if (b < a)
+    if (b <= a)
         throw std::invalid_argument("upper bound cannot be less than lower bound!!!");
     bigint thing;
     static std::mt19937_64 gen(std::random_device{}()); // seed once
@@ -395,8 +395,8 @@ bool rabin_miller(bigint n, int iterations)
     bigint one, two; // an embarrasment
     one.words[WORDCNT - 1] = 1;
     two.words[WORDCNT - 1] = 2;
-    if (n == two)
-        return true; // only prime to be even
+    if (n == two || n == (one + two)) // yes please endure this as i add some quality of life so this doesnt have to happen
+        return true;                  // only prime to be even
     if (n.is_even())
         return false; // nothing other than 2 is an even prime
 
@@ -413,7 +413,7 @@ bool rabin_miller(bigint n, int iterations)
 
     for (int i = 0; i < iterations; i++)
     {
-        bigint a = random_bigint(one, n - one);
+        bigint a = random_bigint(two, n - two);
         bigint x = powMod(a, d, n);
         bigint y;
         for (int i = 0; i < s; i++)
