@@ -45,7 +45,13 @@ public:
 
     // quality of life BS
 
+    bigint(uint64_t cst);
     bool is_even();
+    bigint &operator+=(const bigint &a);
+    bigint &operator-=(const bigint &a);
+    bigint &operator*=(const bigint &a);
+    bigint &operator/=(const bigint &a);
+    bigint &operator%=(const bigint &a);
 
     std::string debugstring();
 };

@@ -6,15 +6,20 @@
 
 int main()
 {
+    // bigint a;
+    // uint64_t inp;
+    // std::cin >> inp;
+    // a.words[7] = inp;
+    // std::cout << a.debugstring() << "\n";
+    // if (rabin_miller(a, 5))
+    //     std::cout << "prime" << "\n";
+    // else
+    //     std::cout << "composite" << "\n";
+
     bigint a;
-    uint64_t inp;
-    std::cin >> inp;
-    a.words[7] = inp;
+    a += bigint(4);
+    a %= a;
     std::cout << a.debugstring() << "\n";
-    if (rabin_miller(a, 5))
-        std::cout << "prime" << "\n";
-    else
-        std::cout << "composite" << "\n";
     return 0;
 }
 
