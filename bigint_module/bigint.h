@@ -54,6 +54,11 @@ public:
     bigint &operator%=(const bigint &a);
 
     std::string debugstring();
+
+    // stream things. NOTE: THESE BOTH OPERATE ON REVERSED STRINGS, AS PER
+    // REQUIREMENTS
+    friend std::ostream &operator<<(std::ostream &os, const bigint &num);
+    friend std::istream &operator>>(std::istream &is, bigint &num);
 };
 
 bigint addMod(bigint a, bigint b, bigint n); // computes (a + b) % n
