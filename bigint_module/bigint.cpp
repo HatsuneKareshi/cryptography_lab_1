@@ -38,12 +38,14 @@ bigint::bigint(const bigint &a)
 {
     for (int i = 0; i < WORDCNT; i++)
         this->words[i] = a.words[i];
+    this->__bz_neg = a.__bz_neg; // makes sure i can actually return the damn sign correctly
 }
 
 bigint &bigint::operator=(const bigint &a)
 {
     for (int i = 0; i < WORDCNT; i++)
         this->words[i] = a.words[i];
+    this->__bz_neg = a.__bz_neg; // makes sure i can actually return the damn sign correctly
     return *this;
 }
 
@@ -354,10 +356,10 @@ bigint &bigint::operator%=(const bigint &a)
     return *this;
 }
 
-std::string bigint::debugstring()
+std::string bigint::debugstring(int n)
 {
     std::string result = "|";
-    for (int i = 0; i < WORDCNT; i++)
+    for (int i = WORDCNT - n; i < WORDCNT; i++)
         result += __ui64_to_hex_str(this->words[i]) + "|";
     return result;
 }
@@ -383,6 +385,20 @@ std::istream &operator>>(std::istream &is, bigint &num)
     bigint temp(input);
     num = temp;
     return is;
+}
+
+//////////////////////////////////////////
+///// BEZOUT ONLY METHODS ////////////////
+//////////////////////////////////////////
+
+bool bigint::__bz_get_negflag()
+{
+    return this->__bz_neg;
+}
+
+void bigint::__bz_set_negflag(bool sgn)
+{
+    this->__bz_neg = sgn;
 }
 
 //////////////////////////////////////////
@@ -504,4 +520,153 @@ bool rabin_miller(bigint n, int iterations)
             return false;
     }
     return true; // probably
+}
+
+// ex_gcd (bezout) specific operator functions here
+
+bigint __bz_add(bigint a, bigint b)
+{
+    bigint result;
+    if (!a.__bz_get_negflag() && !b.__bz_get_negflag()) // a and b POSITIVE;
+        return a + b;
+    else if (!a.__bz_get_negflag() && b.__bz_get_negflag()) // if b negative only
+    {
+        if (b > a) // in magnitude. here return neg
+        {
+            result = b - a;
+            result.__bz_set_negflag(true);
+            return result; // negative
+        }
+        else
+            return (a - b);
+    }
+    else if (a.__bz_get_negflag() && !b.__bz_get_negflag()) // if a negative only
+    {
+        if (a > b) // in magnitude. here return neg
+        {
+            result = a - b;
+            result.__bz_set_negflag(true);
+            return result;
+        }
+        else
+            return (b - a);
+    }
+    else // both negative
+    {
+        result = (a + b);
+        result.__bz_set_negflag(true);
+        return result;
+    }
+}
+
+bigint __bz_sub(bigint a, bigint b) // a - b
+{
+    bigint result;
+    if (!a.__bz_get_negflag() && !b.__bz_get_negflag()) // both positive
+    {
+        if (a < b)
+        {
+            result = b - a;
+            result.__bz_set_negflag(true);
+            return result;
+        }
+        else
+            return a - b;
+    }
+    else if (!a.__bz_get_negflag() && b.__bz_get_negflag()) // b negative only
+        return a + b;
+    else if (a.__bz_get_negflag() && !b.__bz_get_negflag()) // a negative only
+    {
+        result = a + b;
+        result.__bz_set_negflag(true);
+        return result;
+    }
+    else // both negative, this now becomes b - a
+    {
+        if (b < a)
+        {
+            result = a - b;
+            result.__bz_set_negflag(true);
+            return result;
+        }
+        else
+        {
+            return b - a; // just the magnitude
+        }
+    }
+}
+
+bigint __bz_mul(bigint a, bigint b)
+{
+    bigint result;
+    if (!a.__bz_get_negflag() && !b.__bz_get_negflag()) // both positive
+    {
+        return a * b;
+    }
+    else if (!a.__bz_get_negflag() && b.__bz_get_negflag()) // b negative only
+    {
+        result = a * b;
+        result.__bz_set_negflag(true);
+        return result;
+    }
+    else if (a.__bz_get_negflag() && !b.__bz_get_negflag()) // a negative only
+    {
+        result = a * b;
+        result.__bz_set_negflag(true);
+        return result;
+    }
+    else // both negative
+    {
+        return a * b;
+    }
+}
+
+// ex_gcd (bezout) specific operator functions here
+bigint bezout_ex_gcd(bigint a, bigint b, bigint &x, bigint &y)
+{
+    if (a < b)
+        std::swap(a, b);
+
+    bigint x0(1), x1(0), xcur, y0(0), y1(1), ycur;
+    while (b > bigint(0))
+    {
+        bigint tmp = a % b;
+        bigint q = a / b; // consolidate this to just one operator (method) later. dont do it twice
+        a = b;
+        b = tmp;
+        if (b == bigint(0))
+            break;
+        xcur = __bz_sub(x0, __bz_mul(q, x1));
+        ycur = __bz_sub(y0, __bz_mul(q, y1));
+        x0 = x1;
+        x1 = xcur;
+        y0 = y1;
+        y1 = ycur;
+    }
+
+    // normalizes bigints with their neg flag to their 2 comp form
+    if (xcur.__bz_get_negflag())
+    {
+        xcur.__bz_set_negflag(false);
+        xcur = xcur.get_twocomp_neg();
+    }
+
+    if (ycur.__bz_get_negflag())
+    {
+        ycur.__bz_set_negflag(false);
+        ycur = xcur.get_twocomp_neg();
+    }
+
+    x = xcur;
+    y = ycur;
+    return a;
+} // probably correct, needs testing
+
+void prettyprint_bigint(bigint a)
+{
+    if (a.__bz_get_negflag())
+        std::cout << "NEG  ";
+    else
+        std::cout << "POS  ";
+    std::cout << a.debugstring(4) << "\n";
 }

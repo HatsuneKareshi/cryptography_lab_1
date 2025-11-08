@@ -6,51 +6,57 @@
 
 int main()
 {
-    bigint a;
-    std::cin >> a;
-    std::cout << a.debugstring() << "\n";
-    std::cout << "should be reversed:\n";
-    std::cout << a << "\n";
-    if (rabin_miller(a, 5))
-        std::cout << "prime" << "\n";
+    bigint p, q, e, d, _;
+    bigint phi;
+    std::cout << "p, q, e?\n";
+    std::cin >> p >> q >> e;
+    phi = (p - bigint(1)) * (q - bigint(1));
+    if (gcd(e, phi) != bigint(1))
+        std::cout << "NO\n";
     else
-        std::cout << "composite" << "\n";
+    {
+        bezout_ex_gcd(e, phi, _, d);
+        std::cout << "decryption key:"
+                  << d.debugstring(8) << "\n";
+    }
+    return 0;
 }
 
 // previous test below
+// std::cout << "signs for both\n";
+// std::cin >> sgna >> sgnb;
+// bigint a(ia), b(ib);
+// a.__bz_set_negflag(sgna);
+// b.__bz_set_negflag(sgnb);
+// std::cout << "a add b = ";
+// prettyprint_bigint(__bz_add(a, b));
+// std::cout << "a sub b = ";
+// prettyprint_bigint(__bz_sub(a, b));
+// std::cout << "a mul b = ";
+// prettyprint_bigint(__bz_mul(a, b));
 
-// bigint a, b;
-// a.words[7] = 1;
-// b.words[7] = 3;
-// auto start = std::chrono::high_resolution_clock::now();
-// for (int i = 0; i < 100; i++)
-// {
-//     std::cout << random_bigint(a, b).debugstring() << "\n";
-// }
-// auto end = std::chrono::high_resolution_clock::now();
-// auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-// std::cout << dur.count() << "\n";
+// std::cout << "=======\nb add a = ";
+// prettyprint_bigint(__bz_add(b, a));
+// std::cout << "b sub a = ";
+// prettyprint_bigint(__bz_sub(b, a));
+// std::cout << "b mul a = ";
+// prettyprint_bigint(__bz_mul(b, a));
 
-// bigint a, b;
-// a.words[7] = 0xD32754A36CE9127E;
-// a.words[6] = 0x0AAA74F04B857C88;
-// a.words[5] = 0x84EA50768F191229;
-// a.words[4] = 0x16070C4FDC0013C0;
+// uint64_t ia, ib, sgna, sgnb;
+// std::cout << "2 NUMBERS\n";
+// std::cin >> ia >> ib;
+// bigint a(ia), b(ib), x, y; // ax + by = gcd(a, b)
+// bigint gcdiddy = bezout_ex_gcd(a, b, x, y);
+// std::cout << "a = ";
+// prettyprint_bigint(a);
+// std::cout << "b = ";
+// prettyprint_bigint(b);
+// std::cout << "gcd = ";
+// prettyprint_bigint(gcdiddy);
+// std::cout << "x = ";
+// prettyprint_bigint(x);
+// std::cout << "y = ";
+// prettyprint_bigint(y);
 
-// b.words[7] = 0x2FF30576A6A0D0D7;
-
-// a.words[7] = 0x0000000000000014;
-// b.words[7] = 0x0000000000000014;
-
-// std::cout << "a / b\t" << (a % b).debugstring() << "\n";
-// std::cout << "a / b\t" << (a % b).debugstring() << "\n";
-
-// std::cout << (b > a) << "\n"
-//           << (b < a) << "\n"
-//           << (b >= a) << "\n"
-//           << (b <= a) << "\n";
-
-// bigint a, b;
-// a.words[7] = 0x0000000000F3A53D;
-// b.words[7] = 0x0000000000000156;
-// std::cout << (a / b).debugstring() << "\n";
+// std::cout << "ax + by = \n";
+// prettyprint_bigint(a * x + b * y);
