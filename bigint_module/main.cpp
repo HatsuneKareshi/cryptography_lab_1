@@ -6,6 +6,7 @@
 
 int main()
 {
+
     bool _xneg, _yneg;
     bigint p, q, e, d, _;
     bigint phi;
@@ -18,7 +19,8 @@ int main()
     {
         bezout_ex_gcd(e, phi, d, _, _xneg, _yneg);
         std::cout << "decryption key:"
-                  << d.debugstring(8) << "\n";
+                  << d.debugstring(8) << "\n"
+                  << d << "\n";
     }
     return 0;
 }
