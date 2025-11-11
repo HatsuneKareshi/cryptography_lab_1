@@ -223,6 +223,30 @@ bigint bigint::operator%(const bigint &a) const
     return divident; // return whatever is left of divident. makes no changes to this.
 }
 
+void bigint::div_mod(bigint dvsor, bigint &quo, bigint &rmd)
+{
+    bigint quotient; // init to 0;
+    bigint divident = *this;
+    bigint divisor = dvsor;
+    bigint one;
+    bigint zero;
+    one.words[WORDCNT - 1] = RM_BIT_64;
+    if (divisor == zero)
+        throw std::invalid_argument("division by 0 not");
+    for (int i = BIT_CNT_WRD * WORDCNT - 1; i >= 0; i--)
+    {
+        if ((divisor << i) == zero) // hopefully detects overflow
+            continue;
+        else if ((divisor << i) <= divident)
+        {
+            divident = divident - (divisor << i);
+            quotient = quotient + (one << i);
+        }
+    }
+    quo = quotient; // quotient.
+    rmd = divident; // what is left of the divident is the remainder
+}
+
 bigint bigint::get_twocomp_neg()
 {
     bigint result = *this;
@@ -622,16 +646,16 @@ bigint __bz_mul(bigint a, bigint b)
 }
 
 // ex_gcd (bezout) specific operator functions here
-bigint bezout_ex_gcd(bigint a, bigint b, bigint &x, bigint &y)
+bigint bezout_ex_gcd(bigint a, bigint b, bigint &x, bigint &y, bool &neg_x, bool &neg_y)
 {
-    if (a < b)
-        std::swap(a, b);
-
     bigint x0(1), x1(0), xcur, y0(0), y1(1), ycur;
     while (b > bigint(0))
     {
-        bigint tmp = a % b;
-        bigint q = a / b; // consolidate this to just one operator (method) later. dont do it twice
+        bigint tmp; // = a % b
+        bigint q;   //  = a / bconsolidate this to just one operator (method) later. dont do it twice
+
+        a.div_mod(b, q, tmp);
+
         a = b;
         b = tmp;
         if (b == bigint(0))
@@ -645,22 +669,36 @@ bigint bezout_ex_gcd(bigint a, bigint b, bigint &x, bigint &y)
     }
 
     // normalizes bigints with their neg flag to their 2 comp form
-    if (xcur.__bz_get_negflag())
-    {
-        xcur.__bz_set_negflag(false);
-        xcur = xcur.get_twocomp_neg();
-    }
+    // if (xcur.__bz_get_negflag())
+    // {
+    //     xcur.__bz_set_negflag(false);
+    //     xcur = xcur.get_twocomp_neg();
+    // }
 
-    if (ycur.__bz_get_negflag())
-    {
-        ycur.__bz_set_negflag(false);
-        ycur = xcur.get_twocomp_neg();
-    }
+    // if (ycur.__bz_get_negflag())
+    // {
+    //     ycur.__bz_set_negflag(false);
+    //     ycur = ycur.get_twocomp_neg();
+    // }
+
+    neg_x = xcur.__bz_get_negflag();
+    neg_y = ycur.__bz_get_negflag();
+
+    xcur.__bz_set_negflag(false);
+    ycur.__bz_set_negflag(false);
 
     x = xcur;
     y = ycur;
     return a;
 } // probably correct, needs testing
+
+bool bezout_confirmation(bigint gcd, bigint a, bigint b, bigint x, bigint y, bool neg_x, bool neg_y)
+{
+    bigint sum;
+    sum = (neg_x) ? sum - x * a : sum + x * a;
+    sum = (neg_y) ? sum - y * b : sum + y * b;
+    return gcd == sum;
+}
 
 void prettyprint_bigint(bigint a)
 {

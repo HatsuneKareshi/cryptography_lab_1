@@ -37,6 +37,7 @@ public:
     bigint operator*(const bigint &a) const;
     bigint operator/(const bigint &a) const; // (soon) now
     bigint operator%(const bigint &a) const;
+    void div_mod(bigint divisor, bigint &quo, bigint &rmd);
 
     bigint get_twocomp_neg();
 
@@ -102,6 +103,8 @@ bigint __bz_mul(bigint a, bigint b);
 // this bezout function returns numbers unsigned, but they will display 2 comp negative.
 // do NOT add them straight as ax + by, theres no guarentee that will work.
 // they simply return the MAGNITUDE of x and y (2comp flipped if neg)
-bigint bezout_ex_gcd(bigint a, bigint b, bigint &x, bigint &y); // returns x and y, NORMALIZED.
+bigint bezout_ex_gcd(bigint a, bigint b, bigint &x, bigint &y, bool &neg_x, bool &neg_y); // returns x and y, NORMALIZED.
+
+bool bezout_confirmation(bigint gcd, bigint a, bigint b, bigint x, bigint y, bool neg_x, bool neg_y);
 
 void prettyprint_bigint(bigint a);

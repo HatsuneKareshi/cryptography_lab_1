@@ -6,6 +6,7 @@
 
 int main()
 {
+    bool _xneg, _yneg;
     bigint p, q, e, d, _;
     bigint phi;
     std::cout << "p, q, e?\n";
@@ -15,7 +16,7 @@ int main()
         std::cout << "NO\n";
     else
     {
-        bezout_ex_gcd(e, phi, _, d);
+        bezout_ex_gcd(e, phi, d, _, _xneg, _yneg);
         std::cout << "decryption key:"
                   << d.debugstring(8) << "\n";
     }
@@ -43,10 +44,11 @@ int main()
 // prettyprint_bigint(__bz_mul(b, a));
 
 // uint64_t ia, ib, sgna, sgnb;
+// bool negx, negy;
 // std::cout << "2 NUMBERS\n";
 // std::cin >> ia >> ib;
 // bigint a(ia), b(ib), x, y; // ax + by = gcd(a, b)
-// bigint gcdiddy = bezout_ex_gcd(a, b, x, y);
+// bigint gcdiddy = bezout_ex_gcd(a, b, x, y, negx, negy);
 // std::cout << "a = ";
 // prettyprint_bigint(a);
 // std::cout << "b = ";
@@ -58,5 +60,4 @@ int main()
 // std::cout << "y = ";
 // prettyprint_bigint(y);
 
-// std::cout << "ax + by = \n";
-// prettyprint_bigint(a * x + b * y);
+// std::cout << "bezout test status: " << bezout_confirmation(gcdiddy, a, b, x, y, negx, negy);
