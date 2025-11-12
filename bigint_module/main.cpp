@@ -7,22 +7,27 @@
 int main()
 {
 
-    bool _xneg, _yneg;
-    bigint p, q, e, d, _;
-    bigint phi;
-    std::cout << "p, q, e?\n";
-    std::cin >> p >> q >> e;
-    phi = (p - bigint(1)) * (q - bigint(1));
-    if (gcd(e, phi) != bigint(1))
-        std::cout << "NO\n";
-    else
-    {
-        bezout_ex_gcd(e, phi, d, _, _xneg, _yneg);
-        std::cout << "decryption key:"
-                  << d.debugstring(8) << "\n"
-                  << d << "\n";
-    }
-    return 0;
+    bigint a;
+    a.words[7] = RM_BIT_64;
+    a.words[4] = RM_BIT_64;
+    std::cout << a.debugstring() << "\n";
+    std::cout << a << "\n";
+    // bool _xneg, _yneg;
+    // bigint p, q, e, d, _;
+    // bigint phi;
+    // std::cout << "p, q, e?\n";
+    // std::cin >> p >> q >> e;
+    // phi = (p - bigint(1)) * (q - bigint(1));
+    // if (gcd(e, phi) != bigint(1))
+    //     std::cout << "NO\n";
+    // else
+    // {
+    //     bezout_ex_gcd(e, phi, d, _, _xneg, _yneg);
+    //     std::cout << "decryption key:"
+    //               << d.debugstring(8) << "\n"
+    //               << d << "\n";
+    // }
+    // return 0;
 }
 
 // previous test below

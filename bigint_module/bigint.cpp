@@ -398,7 +398,7 @@ std::ostream &operator<<(std::ostream &os, const bigint &num)
     bool pad = false;
     for (int i = 0; i < WORDCNT; i++)
     {
-        if (num.words[i] < 1)
+        if (num.words[i] < 1 && !pad)
             continue;
         else if (num.words[i] >= 1 && !pad)
         {
