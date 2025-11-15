@@ -8,7 +8,7 @@
 #include <random>
 
 const int BIT_CNT_WRD = 64;
-const int WORDCNT = 8;
+const int WORDCNT = 20; // change this to 20. default 512bit = 8
 const char CHAR[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 const uint64_t LM_BIT_64 = 0x8000000000000000;
 const uint64_t RM_BIT_64 = 0x0000000000000001;
@@ -61,7 +61,7 @@ public:
     bigint &operator/=(const bigint &a);
     bigint &operator%=(const bigint &a);
 
-    std::string debugstring(int n = 8);
+    std::string debugstring(int n = WORDCNT);
 
     // stream things. NOTE: THESE BOTH OPERATE ON REVERSED STRINGS, AS PER
     // REQUIREMENTS
@@ -184,7 +184,8 @@ bigint::bigint(std::string a)
         case '8':
         case '9':
         {
-            this->words[WORDCNT - 1] += uint64_t(a[i] - '0');
+            // this->words[WORDCNT - 1] += uint64_t(a[i] - '0');
+            *this += bigint(a[i] - '0');
         }
         break;
         case 'A':
@@ -194,7 +195,8 @@ bigint::bigint(std::string a)
         case 'E':
         case 'F':
         {
-            this->words[WORDCNT - 1] += uint64_t(a[i] - 'A' + 10);
+            // this->words[WORDCNT - 1] += uint64_t(a[i] - 'A' + 10);
+            *this += bigint(a[i] - 'A' + 10); // the commented out stuff MAY cause overflow
         }
         break;
         }
@@ -295,19 +297,19 @@ bigint bigint::operator/(const bigint &a) const
     bigint answer; // init to 0;
     bigint divident = *this;
     bigint divisor = a;
-    bigint one;
-    bigint zero;
-    one.words[WORDCNT - 1] = RM_BIT_64;
-    if (divisor == zero)
+    // bigint one;
+    // bigint zero;
+    // one.words[WORDCNT - 1] = RM_BIT_64;
+    if (divisor == bigint(0)) // zero
         throw std::invalid_argument("division by 0 not");
     for (int i = BIT_CNT_WRD * WORDCNT - 1; i >= 0; i--)
     {
-        if ((divisor << i) == zero) // hopefully detects overflow
+        if ((divisor << i) == bigint(0)) // zero // hopefully detects overflow
             continue;
         else if ((divisor << i) <= divident)
         {
             divident = divident - (divisor << i);
-            answer = answer + (one << i);
+            answer = answer + (bigint(1) << i); // one
         }
     }
     return answer;
@@ -421,7 +423,7 @@ bool bigint::operator<=(const bigint &a)
 
 bool bigint::get_bit(int bit) const
 {
-    if (bit < 0 || bit >= 512)
+    if (bit < 0 || bit >= BIT_CNT_WRD * WORDCNT)
         throw std::invalid_argument("index out of range!");
 
     int word_move = bit / BIT_CNT_WRD;
@@ -434,7 +436,7 @@ bool bigint::get_bit(int bit) const
 
 void bigint::set_bit(int bit, bool value)
 {
-    if (bit < 0 || bit >= 512)
+    if (bit < 0 || bit >= BIT_CNT_WRD * WORDCNT)
         throw std::invalid_argument("index out of range!");
 
     int word_move = bit / BIT_CNT_WRD;
@@ -867,7 +869,7 @@ int main(int argc, char **argv)
         out << "-1" << "\n";
     else
         out << d << "\n";
-    std::cout << d.debugstring() << "\n";
+    // std::cout << d.debugstring() << "\n";
     inp.close();
     out.close();
     return 0;
