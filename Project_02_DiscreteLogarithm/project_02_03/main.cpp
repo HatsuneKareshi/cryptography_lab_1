@@ -871,12 +871,12 @@ int main(int argc, char **argv)
     // Calculate s = c1^x (mod p)
     bigint s = powMod(c1, x, p);
 
-    // Calculate inverse of s(s^-1) 
-    // Fermat little theorem: a^(p-1) = 1 (mod p) 
-    // <=> a * a^(p-2) = 1 (mod p) 
-    // <=> inverse a = a^(p-2)  
-    bigint inverse_s = powMod(s, p - 2, p);
-    
+    // Calculate inverse of s(s^-1)
+    // Fermat little theorem: a^(p-1) = 1 (mod p)
+    // <=> a * a^(p-2) = 1 (mod p)
+    // <=> inverse a = a^(p-2)
+    bigint inverse_s = powMod(s, p - bigint(2), p);
+
     // Decrypt m = c2 * s^-1 (mod p)
     bigint m = mulMod(c2, inverse_s, p);
 
