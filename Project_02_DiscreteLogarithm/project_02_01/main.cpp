@@ -8,7 +8,7 @@
 #include <random>
 
 const int BIT_CNT_WRD = 64;
-const int WORDCNT = 8; // change this to 20. default 512bit = 8
+const int WORDCNT = 10; // change this to 20. default 512bit = 8. 10 = 640 bits, for safety
 const char CHAR[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 const uint64_t LM_BIT_64 = 0x8000000000000000;
 const uint64_t RM_BIT_64 = 0x0000000000000001;
