@@ -504,13 +504,15 @@ bigint gcd(bigint a, bigint b)
     return answer;
 }
 
+static std::mt19937_64 gen(std::random_device{}());                 // seed once
+static std::uniform_int_distribution<uint64_t> dist(0, UINT64_MAX); // once only
+
 bigint random_bigint(bigint a, bigint b)
 {
     if (b <= a)
         throw std::invalid_argument("upper bound cannot be less than lower bound!!!");
     bigint thing;
-    static std::mt19937_64 gen(std::random_device{}()); // seed once
-    std::uniform_int_distribution<uint64_t> dist(0, UINT64_MAX);
+
     for (int i = 0; i < WORDCNT; i++)
         thing.words[i] = dist(gen);
 
@@ -719,5 +721,5 @@ void prettyprint_bigint(bigint a)
         std::cout << "NEG  ";
     else
         std::cout << "POS  ";
-    std::cout << a.debugstring(4) << "\n";
+    std::cout << a.debugstring(WORDCNT) << "\n";
 }

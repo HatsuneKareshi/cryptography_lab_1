@@ -56,7 +56,7 @@ void tester(std::vector<uint8_t> payload)
 {
     for (auto byte : payload)
     {
-        std::cout << char(byte);
+        printf("%02X ", byte);
     }
     std::cout << "\n";
 }
