@@ -39,3 +39,6 @@
 
 # debug information files
 *.dwo
+
+# the fucking test_input file
+test_input.txt
