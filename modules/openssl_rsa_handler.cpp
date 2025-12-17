@@ -165,6 +165,8 @@ void openssl_rsa_handler(std::string filename)
         std::cout << "primality of q: " << rabin_miller(q, 5) << "\n";
         std::cout << "primality of p: " << rabin_miller(p, 5) << "\n";
         prettyprint_bigint(p * q);
+        prettyprint_bigint(N / q);
+        std::cout << "N / q == p ?? " << ((N / q) == p) << "\n";
     }
     openssl.close();
 }
