@@ -1,0 +1,77 @@
+#include <string>
+#include <vector>
+#include <map>
+#include <stack>
+#include <iostream>
+// for now i guess this would be enough
+
+std::vector<uint8_t> base64_to_bytes(std::string b64);
+
+void tester(std::vector<uint8_t> payload);
+
+const std::string CHAR_ARRAY = {"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"};
+const std::map<char, int> CHAR_MAPPING = {
+    {CHAR_ARRAY[0], 0},
+    {CHAR_ARRAY[1], 1},
+    {CHAR_ARRAY[2], 2},
+    {CHAR_ARRAY[3], 3},
+    {CHAR_ARRAY[4], 4},
+    {CHAR_ARRAY[5], 5},
+    {CHAR_ARRAY[6], 6},
+    {CHAR_ARRAY[7], 7},
+    {CHAR_ARRAY[8], 8},
+    {CHAR_ARRAY[9], 9},
+    {CHAR_ARRAY[10], 10},
+    {CHAR_ARRAY[11], 11},
+    {CHAR_ARRAY[12], 12},
+    {CHAR_ARRAY[13], 13},
+    {CHAR_ARRAY[14], 14},
+    {CHAR_ARRAY[15], 15},
+    {CHAR_ARRAY[16], 16},
+    {CHAR_ARRAY[17], 17},
+    {CHAR_ARRAY[18], 18},
+    {CHAR_ARRAY[19], 19},
+    {CHAR_ARRAY[20], 20},
+    {CHAR_ARRAY[21], 21},
+    {CHAR_ARRAY[22], 22},
+    {CHAR_ARRAY[23], 23},
+    {CHAR_ARRAY[24], 24},
+    {CHAR_ARRAY[25], 25},
+    {CHAR_ARRAY[26], 26},
+    {CHAR_ARRAY[27], 27},
+    {CHAR_ARRAY[28], 28},
+    {CHAR_ARRAY[29], 29},
+    {CHAR_ARRAY[30], 30},
+    {CHAR_ARRAY[31], 31},
+    {CHAR_ARRAY[32], 32},
+    {CHAR_ARRAY[33], 33},
+    {CHAR_ARRAY[34], 34},
+    {CHAR_ARRAY[35], 35},
+    {CHAR_ARRAY[36], 36},
+    {CHAR_ARRAY[37], 37},
+    {CHAR_ARRAY[38], 38},
+    {CHAR_ARRAY[39], 39},
+    {CHAR_ARRAY[40], 40},
+    {CHAR_ARRAY[41], 41},
+    {CHAR_ARRAY[42], 42},
+    {CHAR_ARRAY[43], 43},
+    {CHAR_ARRAY[44], 44},
+    {CHAR_ARRAY[45], 45},
+    {CHAR_ARRAY[46], 46},
+    {CHAR_ARRAY[47], 47},
+    {CHAR_ARRAY[48], 48},
+    {CHAR_ARRAY[49], 49},
+    {CHAR_ARRAY[50], 50},
+    {CHAR_ARRAY[51], 51},
+    {CHAR_ARRAY[52], 52},
+    {CHAR_ARRAY[53], 53},
+    {CHAR_ARRAY[54], 54},
+    {CHAR_ARRAY[55], 55},
+    {CHAR_ARRAY[56], 56},
+    {CHAR_ARRAY[57], 57},
+    {CHAR_ARRAY[58], 58},
+    {CHAR_ARRAY[59], 59},
+    {CHAR_ARRAY[60], 60},
+    {CHAR_ARRAY[61], 61},
+    {CHAR_ARRAY[62], 62},
+    {CHAR_ARRAY[63], 63}};
