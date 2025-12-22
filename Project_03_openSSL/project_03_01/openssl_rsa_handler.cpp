@@ -27,7 +27,7 @@ publicKey __getpublicKey(std::string base64_payload)
     publicKey plk;
     std::vector<uint8_t> payload = base64_to_bytes(base64_payload);
     bigint N, e;
-    tester(payload);
+    // tester(payload);
     long cursor = 0;
     long length = payload.size();
     __get_length(payload, cursor);
@@ -69,7 +69,7 @@ privatKey __getprivatKey(std::string base64_payload)
     privatKey pvk;
     std::vector<uint8_t> payload = base64_to_bytes(base64_payload);
     bigint N, e, d, p, q;
-    tester(payload);
+    // tester(payload);
     long length = payload.size();
     long cursor = 0;
     __get_length(payload, cursor); // sequence;
