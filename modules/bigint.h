@@ -61,6 +61,10 @@ public:
     bigint &operator/=(const bigint &a);
     bigint &operator%=(const bigint &a);
 
+    // some bitwise operator
+    bigint operator&(const bigint &a);
+    bigint operator|(const bigint &a);
+
     std::string debugstring(int n = WORDCNT);
 
     // stream things. NOTE: THESE BOTH OPERATE ON REVERSED STRINGS, AS PER

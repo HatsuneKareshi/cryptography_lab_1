@@ -382,6 +382,23 @@ bigint &bigint::operator%=(const bigint &a)
     return *this;
 }
 
+// bitwise operators
+bigint bigint::operator&(const bigint &a)
+{
+    bigint answer(*this);
+    for (int i = WORDCNT - 1; i >= 0; i--)
+        answer.words[i] &= a.words[i];
+    return answer;
+}
+
+bigint bigint::operator|(const bigint &a)
+{
+    bigint answer(*this);
+    for (int i = WORDCNT - 1; i >= 0; i--)
+        answer.words[i] |= a.words[i];
+    return answer;
+}
+
 std::string bigint::debugstring(int n)
 {
     std::string result = "|";
