@@ -65,6 +65,9 @@ public:
     bigint operator&(const bigint &a);
     bigint operator|(const bigint &a);
 
+    // grab the last 8 bits
+    uint8_t getLSB8bits();
+
     std::string debugstring(int n = WORDCNT);
 
     // stream things. NOTE: THESE BOTH OPERATE ON REVERSED STRINGS, AS PER

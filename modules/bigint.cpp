@@ -398,6 +398,13 @@ bigint bigint::operator|(const bigint &a)
         answer.words[i] |= a.words[i];
     return answer;
 }
+// get least sig 8 bits
+
+uint8_t bigint::getLSB8bits()
+{
+    // least sig is WORDCNT - 1 word
+    return uint8_t(this->words[WORDCNT - 1] & 0xFF);
+}
 
 std::string bigint::debugstring(int n)
 {
