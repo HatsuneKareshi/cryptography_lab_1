@@ -9,7 +9,10 @@
             "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
             // PUT YOUR ARGUMENTS HERE (Comma separated strings)
             "args": [
-                "E:\\cryptography_prj_1\\cryptography_lab_1\\test_input.txt"
+                "pub.txt",
+                "-enc",
+                "message",
+                "cp"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

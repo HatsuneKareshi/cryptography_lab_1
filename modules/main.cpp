@@ -1,47 +1,92 @@
 #include "openssl_rsa_handler.h"
 #include "util.h"
 #include "base64_parser.h"
-// testing main
-// currently testing utils
+#include <cstring>
 
-int main(int argc, char **argv)
+// experimental implementation for task 2. expect more modifications to come later
+
+int main(int argc, char **argv) // main <keyfile> -enc/dec <source> <destination>
 {
-    std::cout << "HELLO\n";
-    std::string header, payload;
-    std::ifstream keyfile(argv[1]);
-    std::getline(keyfile, header, '\n');
-    while (!keyfile.eof())
+    if (argc != 5)
     {
-        std::string temp;
-        std::getline(keyfile, temp, '\n');
-        if (temp != PRIVKEY_ENDER && temp != PUBLKEY_ENDER)
-            payload += temp;
-        else
-            break;
+        std::cout << "wrong argument placement. usage:\n$ .exe <keyfile> -enc <source> <destination>\n                 -dec\n"; // 17
+        return -1;
     }
+    if (strcmp(argv[2], "-enc") && strcmp(argv[2], "-dec"))
+    {
+        std::cout << "wrong argument. action argument is position 2 (starting from 0) and is either \"-enc\" or \"-dec\"\n";
+        return -1;
+    }
+    if (!strcmp(argv[2], "-enc")) // encryption
+    {
+        std::string srcfn(argv[3]), dstfn(argv[4]), keyfn(argv[1]);
+        publicKey plk;
 
-    privatKey prvkey = __getprivatKey(payload); // get the private key here
-    std::string cipherstring;
-    std::cin >> cipherstring;
-    std::reverse(cipherstring.begin(), cipherstring.end());
-    bigint c(cipherstring);
+        try
+        {
+            plk = parsePubkeyFile(keyfn);
+        }
+        catch (std::exception e)
+        {
+            std::cout << "wrong key type!!\n";
+            return -1;
+        }
 
-    std::cout << "c: " << c.debugstring() << "\n";
-    std::cout << "d: " << prvkey.d.debugstring() << "\n";
-    std::cout << "N: " << prvkey.N.debugstring() << "\n";
-    bigint m = powMod(c, prvkey.d, prvkey.N);
-    std::cout << "m: " << m.debugstring() << "\n";
+        std::vector<uint8_t> cypherBytestream{};
+        cypherBytestream.push_back(0x00);
+        cypherBytestream.push_back(0x02);
+        int padLength = 64 - 2 - 1 - file_length(srcfn);
+        if (padLength < 0)
+        {
+            std::cout << "file too long for 64byte RSA!\n";
+            return -1;
+        }
+        for (int i = 0; i < padLength; i++)
+            cypherBytestream.push_back(0xBF); // soo many Boyfriends AAAAAAAAAAAAAAAAAAAAAAAAAAAA (or none if theres 61 bytes of data);
+        cypherBytestream.push_back(0x00);
+        for (auto &b : get_byte_stream_from_file(srcfn))
+            cypherBytestream.push_back(b);
+
+        std::cout << "cypher bytedump\n";
+        tester(cypherBytestream);
+
+        bigint m = byte_stream_to_bigint(cypherBytestream);
+        bigint c = powMod(m, plk.e, plk.N);
+
+        std::cout << cypherBytestream.size() << "\n";
+
+        write_byte_stream_to_file(bigint_to_byte_stream(c, 64), dstfn);
+    }
+    if (!strcmp(argv[2], "-dec"))
+    {
+        std::string srcfn(argv[3]), dstfn(argv[4]), keyfn(argv[1]);
+        privatKey pvk;
+
+        try
+        {
+            pvk = parsePrvkeyFile(keyfn);
+        }
+        catch (std::exception e)
+        {
+            std::cout << "wrong key type!!\n";
+            return -1;
+        }
+
+        bigint c = byte_stream_to_bigint(get_byte_stream_from_file(srcfn));
+        bigint m = powMod(c, pvk.d, pvk.N);
+
+        std::vector<uint8_t> mssgBytestream = bigint_to_byte_stream(m, 64);
+        std::vector<uint8_t> filebytestream;
+        int delinatorCNT = 0;
+        for (auto &mb : mssgBytestream)
+        {
+            if (delinatorCNT >= 2)
+                filebytestream.push_back(mb);
+            if (delinatorCNT < 2 && mb == 0x00)
+                delinatorCNT++;
+        }
+
+        write_byte_stream_to_file(filebytestream, dstfn);
+    }
+    return 0;
 }
-// std::string input;
-// std::cin >> input;
-// std::reverse(input.begin(), input.end());
-// bigint tes(input);
-
-// std::cout << "=========\n";
-// std::cout << tes.debugstring() << "\n\n";
-// tester(bigint_to_byte_stream(tes, 96));
-// bigint tes2 = byte_stream_to_bigint(bigint_to_byte_stream(tes, 96));
-// std::cout
-//     << "\n\n"
-//     << tes2.debugstring();
-// std::cout << "equal? " << (tes == tes2) << "\n";

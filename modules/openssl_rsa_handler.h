@@ -15,6 +15,9 @@ long __get_length(const std::vector<uint8_t> &payload, long &cursor, uint8_t byt
 publicKey __getpublicKey(std::string base64_payload);
 privatKey __getprivatKey(std::string base64_payload);
 
+publicKey parsePubkeyFile(std::string pubFile);
+privatKey parsePrvkeyFile(std::string prvFile);
+
 const std::string PRIVKEY_HEADER = "-----BEGIN PRIVATE KEY-----";
 const std::string PRIVKEY_ENDER = "-----END PRIVATE KEY-----";
 const std::string PUBLKEY_HEADER = "-----BEGIN PUBLIC KEY-----";

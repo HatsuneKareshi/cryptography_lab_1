@@ -38,15 +38,21 @@ publicKey __getpublicKey(std::string base64_payload)
     cursor++;                                          // skip the padder 0x0
     __get_length(payload, cursor);                     // step into the inner sequence
     int NLength = __get_length(payload, cursor, 0x02); // upcoming is a 0x02 tag for the integer
-                                                       // length of the N
+    bool paddedZeroFlag = false;
+
     for (int i = 0; i < NLength; i++)
     {
         uint8_t temp = 0x0;
         temp = payload[cursor];
+        if (payload[cursor] == 0x00 && i == 0) // this a padded 0
+            paddedZeroFlag = true;
+
         cursor++;
         N = N << 8;
         N += bigint(temp); // build the N
     }
+    std::cout << "length of N: " << NLength - paddedZeroFlag << "\n";
+
     int eLength = __get_length(payload, cursor, 0x02); // length of e;
     for (int i = 0; i < eLength; i++)
     {
@@ -54,7 +60,7 @@ publicKey __getpublicKey(std::string base64_payload)
         temp = payload[cursor];
         cursor++;
         e = e << 8;
-        e += bigint(temp); // build the N
+        e += bigint(temp); // build the e
     }
     // std::cout << "final cursor position: " << cursor << "\n";
     // prettyprint_bigint(N);
@@ -83,14 +89,22 @@ privatKey __getprivatKey(std::string base64_payload)
     __get_length(payload, cursor, 0x02); // version, skip
     cursor++;                            // skip
     long NLength = __get_length(payload, cursor, 0x02);
+    bool paddedZeroFlag = false;
+
     for (long i = 0; i < NLength; i++)
     {
         uint8_t temp = 0x0;
         temp = payload[cursor];
+
+        if (payload[cursor] == 0x00 && i == 0) // this a padded 0
+            paddedZeroFlag = true;
+
         cursor++;
         N = N << 8;
         N += bigint(temp); // build the N
     }
+    std::cout << "length of N: " << NLength - paddedZeroFlag << "\n";
+
     long eLength = __get_length(payload, cursor, 0x02);
     for (long i = 0; i < eLength; i++)
     {
@@ -98,7 +112,7 @@ privatKey __getprivatKey(std::string base64_payload)
         temp = payload[cursor];
         cursor++;
         e = e << 8;
-        e += bigint(temp); // build the N
+        e += bigint(temp); // build the e
     }
     long dLength = __get_length(payload, cursor, 0x02);
     for (long i = 0; i < dLength; i++)
@@ -107,7 +121,7 @@ privatKey __getprivatKey(std::string base64_payload)
         temp = payload[cursor];
         cursor++;
         d = d << 8;
-        d += bigint(temp); // build the N
+        d += bigint(temp); // build the d
     }
     long pLength = __get_length(payload, cursor, 0x02);
     for (long i = 0; i < pLength; i++)
@@ -116,7 +130,7 @@ privatKey __getprivatKey(std::string base64_payload)
         temp = payload[cursor];
         cursor++;
         p = p << 8;
-        p += bigint(temp); // build the N
+        p += bigint(temp); // build the p
     }
     long qLength = __get_length(payload, cursor, 0x02);
     for (long i = 0; i < qLength; i++)
@@ -125,7 +139,7 @@ privatKey __getprivatKey(std::string base64_payload)
         temp = payload[cursor];
         cursor++;
         q = q << 8;
-        q += bigint(temp); // build the N
+        q += bigint(temp); // build the q
     }
 
     pvk.N = N;
@@ -134,4 +148,45 @@ privatKey __getprivatKey(std::string base64_payload)
     pvk.p = p;
     pvk.q = q;
     return pvk;
+}
+
+publicKey parsePubkeyFile(std::string pubFile)
+{
+    std::ifstream pub(pubFile);
+    if (pub.is_open() == false)
+        throw std::invalid_argument("public file inaccessible");
+    std::string header, payload;
+    std::getline(pub, header, '\n');
+    if (header != PUBLKEY_HEADER)
+        throw std::invalid_argument("parsing public key but got something else!!!");
+    while (!pub.eof())
+    {
+        std::string tmp;
+        std::getline(pub, tmp, '\n');
+        if (tmp != PUBLKEY_ENDER)
+            payload += tmp;
+        else
+            break;
+    }
+    return __getpublicKey(payload);
+}
+privatKey parsePrvkeyFile(std::string prvFile)
+{
+    std::ifstream priv(prvFile);
+    if (priv.is_open() == false)
+        throw std::invalid_argument("private file inaccessible");
+    std::string header, payload;
+    std::getline(priv, header, '\n');
+    if (header != PRIVKEY_HEADER)
+        throw std::invalid_argument("parsing private key but got something else!!!");
+    while (!priv.eof())
+    {
+        std::string tmp;
+        std::getline(priv, tmp, '\n');
+        if (tmp != PRIVKEY_ENDER)
+            payload += tmp;
+        else
+            break;
+    }
+    return __getprivatKey(payload);
 }

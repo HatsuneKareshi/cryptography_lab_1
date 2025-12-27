@@ -56,8 +56,11 @@ std::vector<uint8_t> bigint_to_byte_stream(bigint bi, int byte_to_extract) // ex
         throw std::invalid_argument("byte to extract too many for bigint size of " + std::to_string(WORDCNT * 64) + " bits");
     std::vector<uint8_t> result{};
     bigint sacr(bi);
+    std::cout << bi.debugstring() << "\n";
+    std::cout << sacr.debugstring() << "\n";
     for (int i = 0; i < byte_to_extract; i++)
     {
+        // printf("%02X ", sacr.getLSB8bits());
         result.push_back(sacr.getLSB8bits());
         sacr = sacr >> 8;
     }
