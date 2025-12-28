@@ -2,72 +2,32 @@
 #include "util.h"
 #include "base64_parser.h"
 #include <cstring>
+// bigint a(0xFFFFFFFFFFFFFFFF), b(0xFFFFFFFFFFFFFFFF);
+// a = a << 64;
+// b = b << 64;
+// a = a | bigint(0xFFFFFFFFFFFFFFFF);
+// b = b | bigint(0xFFFFFFFFFFFFFFFF);
 
-// experimental implementation for task 2. expect more modifications to come later
+// std::cout << a.debugstring() << "\n";
+// std::cout << b.debugstring() << "\n";
+// std::cout << (a + b).debugstring() << "\n";
 
-int main(int argc, char **argv) // main <keyfile> -enc/dec <source> <destination>
+int main(int argc, char **argv) // intended syntax: *.exe <keyfile> -sign/-vrfy <message> <signage>
 {
     if (argc != 5)
     {
-        std::cout << "wrong argument placement. usage:\n$ .exe <keyfile> -enc <source> <destination>\n                 -dec\n"; // 17
+        std::cout << "wrong syntax, proper usage are: *.exe <keyfile> -sign <message> <signage>\n               -vrfy\n";
         return -1;
     }
-    if (strcmp(argv[2], "-enc") && strcmp(argv[2], "-dec"))
+    if (strcmp("-sign", argv[2]) && strcmp("-vrfy", argv[2]))
     {
-        std::cout << "wrong argument. action argument is position 2 (starting from 0) and is either \"-enc\" or \"-dec\"\n";
+        std::cout << "wrong argument. action argument is position 2 (starting from 0) and is either \"-sign\" or \"-vrfy\"\n";
         return -1;
     }
-    if (!strcmp(argv[2], "-enc")) // encryption
+
+    if (!strcmp(argv[2], "-sign")) // uses the private key
     {
-        std::string srcfn(argv[3]), dstfn(argv[4]), keyfn(argv[1]);
-        publicKey plk;
-
-        try
-        {
-            plk = parsePubkeyFile(keyfn);
-        }
-        catch (std::exception e)
-        {
-            std::cout << "error getting key, " << e.what() << "\n";
-            return -1;
-        }
-
-        if (plk.NBytecount > (WORDCNT * 8))
-        {
-            std::cout << "key too large for bigint max size\n";
-            return -1;
-        }
-
-        // std::cout << "N length bytes: " << plk.NBytecount << '\n';
-
-        std::vector<uint8_t> cypherBytestream{};
-        cypherBytestream.push_back(0x00);
-        cypherBytestream.push_back(0x02);
-        int padLength = plk.NBytecount - 2 - 1 - file_length(srcfn); // from hardcoded 64 bytes to whatever is in the length
-        if (padLength < 8)                                           // at least 8 bytes of padding
-        {
-            std::cout << "file too long for 64byte RSA!\n";
-            return -1;
-        }
-        for (int i = 0; i < padLength; i++)
-            cypherBytestream.push_back(0xBF); // soo many Boyfriends AAAAAAAAAAAAAAAAAAAAAAAAAAAA (or 8 if theres 53 bytes of data);
-        cypherBytestream.push_back(0x00);
-        for (auto &b : get_byte_stream_from_file(srcfn))
-            cypherBytestream.push_back(b);
-
-        // std::cout << "cypher bytedump\n";
-        // tester(cypherBytestream);
-
-        bigint m = byte_stream_to_bigint(cypherBytestream);
-        bigint c = powMod(m, plk.e, plk.N);
-
-        // std::cout << cypherBytestream.size() << "\n";
-
-        write_byte_stream_to_file(bigint_to_byte_stream(c, plk.NBytecount), dstfn); // use N length instead
-    }
-    if (!strcmp(argv[2], "-dec"))
-    {
-        std::string srcfn(argv[3]), dstfn(argv[4]), keyfn(argv[1]);
+        std::string keyfn(argv[1]), mesfn(argv[3]), sgnfn(argv[4]);
         privatKey pvk;
 
         try
@@ -79,29 +39,79 @@ int main(int argc, char **argv) // main <keyfile> -enc/dec <source> <destination
             std::cout << "error getting key, " << e.what() << "\n";
             return -1;
         }
-        if (pvk.NBytecount > (WORDCNT * 8))
+
+        std::vector<uint8_t> signBytestream{};
+        signBytestream.push_back(0x00);
+        signBytestream.push_back(0x01); // must be 01 because this is signage not cypher
+        int padLength = pvk.NBytecount - 2 - 1 - file_length(mesfn);
+        if (padLength < 8)
+        {
+            std::cout << "file too long for key of this size!\n";
+            return -1;
+        }
+
+        for (int i = 0; i < padLength; i++)
+            signBytestream.push_back(0xFF); // padding. has to be 0xFF
+        signBytestream.push_back(0x00);
+        for (auto &b : get_byte_stream_from_file(mesfn))
+            signBytestream.push_back(b);
+
+        bigint m = byte_stream_to_bigint(signBytestream);
+        bigint s = powMod(m, pvk.d, pvk.N); // s = m^d mod N.
+
+        // std::cout << "m: " << m.debugstring() << "\n";
+        // std::cout << "d: " << pvk.d.debugstring() << "\n";
+        // std::cout << "N: " << pvk.N.debugstring() << "\n";
+        // std::cout << "s: " << s.debugstring() << "\n";
+
+        write_byte_stream_to_file(bigint_to_byte_stream(s, pvk.NBytecount), sgnfn);
+    }
+    if (!strcmp(argv[2], "-vrfy"))
+    {
+        std::string keyfn(argv[1]), mesfn(argv[3]), sgnfn(argv[4]);
+        publicKey plk;
+        try
+        {
+            plk = parsePubkeyFile(keyfn);
+        }
+        catch (std::exception e)
+        {
+            std::cout << "error getting key, " << e.what() << "\n";
+            return -1;
+        }
+        if (plk.NBytecount > (WORDCNT * 8))
         {
             std::cout << "key too large for bigint max size\n";
             return -1;
         }
 
-        // std::cout << "N length bytes: " << pvk.NBytecount << '\n';
+        bigint s = byte_stream_to_bigint(get_byte_stream_from_file(sgnfn));
 
-        bigint c = byte_stream_to_bigint(get_byte_stream_from_file(srcfn));
-        bigint m = powMod(c, pvk.d, pvk.N);
+        bigint m = powMod(s, plk.e, plk.N); // s^e mod N
 
-        std::vector<uint8_t> mssgBytestream = bigint_to_byte_stream(m, pvk.NBytecount); // change to use N length instead
-        std::vector<uint8_t> filebytestream;
-        int delinatorCNT = 0;
-        for (auto &mb : mssgBytestream)
+        // std::cout << "s: " << s.debugstring() << "\n";
+        // std::cout << "e: " << plk.e.debugstring() << "\n";
+        // std::cout << "N: " << plk.N.debugstring() << "\n";
+        // std::cout << "m: " << m.debugstring() << "\n";
+
+        std::vector<uint8_t> paddedmssgBytestream = bigint_to_byte_stream(m, plk.NBytecount); // N length
+        std::vector<uint8_t> unpaddedStream{};
+        int deliniatorCNT = 0;
+        for (auto &mb : paddedmssgBytestream)
         {
-            if (delinatorCNT >= 2)
-                filebytestream.push_back(mb);
-            if (delinatorCNT < 2 && mb == 0x00)
-                delinatorCNT++;
+            if (deliniatorCNT >= 2)
+                unpaddedStream.push_back(mb);
+            if (deliniatorCNT < 2 && mb == 0x00)
+                deliniatorCNT++;
         }
 
-        write_byte_stream_to_file(filebytestream, dstfn);
+        // tester(paddedmssgBytestream);
+
+        if (unpaddedStream == get_byte_stream_from_file(mesfn))
+            std::cout
+                << "message matches signature\n";
+        else
+            std::cout << "message does not match signature\n";
     }
     return 0;
 }
