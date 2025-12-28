@@ -42,3 +42,6 @@
 
 # the fucking test_input file
 test_input.txt
+
+# the test_dir
+test_dir/
