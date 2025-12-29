@@ -96,12 +96,19 @@ bigint bigint::operator+(const bigint &a) const
     bigint result;
     for (int i = WORDCNT - 1; i >= 0; i--)
     {
-        uint64_t temp = this->words[i] + a.words[i] + _carrier;
-        result.words[i] = temp;
-        if (temp < this->words[i] || temp < a.words[i])
-            _carrier = true; // uint64_t should be unsigned. if it suddenly becomes smaller then either that should mean overflow -> carry
-        else
-            _carrier = false;
+        // uint64_t temp = this->words[i] + a.words[i] + _carrier;
+        // result.words[i] = temp;
+        // if ((temp < this->words[i] || temp < a.words[i]))
+        //     _carrier = true; // uint64_t should be unsigned. if it suddenly becomes smaller then either that should mean overflow -> carry
+        // else
+        //     _carrier = false;
+        // this is commented out because it wont add correctly with 0xFFFFFFFFFFFFFFFF on both sidees
+
+        uint64_t sum = this->words[i] + a.words[i];
+        result.words[i] = (sum + _carrier);
+        bool carry_exceed = (sum < this->words[i] || sum < a.words[i]);
+        bool carry_2 = (sum + _carrier < sum);
+        _carrier = carry_exceed || carry_2;
     }
     return result;
 }

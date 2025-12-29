@@ -50,7 +50,7 @@ int main(int argc, char **argv) // main <keyfile> -enc/dec <source> <destination
             return -1;
         }
         for (int i = 0; i < padLength; i++)
-            cypherBytestream.push_back(0xBF); // soo many Boyfriends AAAAAAAAAAAAAAAAAAAAAAAAAAAA (or 8 if theres 53 bytes of data);
+            cypherBytestream.push_back(0xFF); // soo many Boyfriends AAAAAAAAAAAAAAAAAAAAAAAAAAAA (or 8 if theres 53 bytes of data);
         cypherBytestream.push_back(0x00);
         for (auto &b : get_byte_stream_from_file(srcfn))
             cypherBytestream.push_back(b);
