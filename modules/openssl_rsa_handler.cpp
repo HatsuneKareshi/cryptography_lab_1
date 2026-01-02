@@ -178,7 +178,10 @@ publicKey parsePubkeyFile(std::string pubFile)
         else
             break;
     }
-    return __getpublicKey(payload);
+    publicKey ret = __getpublicKey(payload);
+    if (ret.NBytecount > WORDCNT * 8)
+        throw std::invalid_argument("key size too large for bigint size, " + std::to_string(WORDCNT * 8) + " bytes");
+    return ret;
 }
 privatKey parsePrvkeyFile(std::string prvFile)
 {
@@ -198,5 +201,8 @@ privatKey parsePrvkeyFile(std::string prvFile)
         else
             break;
     }
-    return __getprivatKey(payload);
+    privatKey ret = __getprivatKey(payload);
+    if (ret.NBytecount > WORDCNT * 8)
+        throw std::invalid_argument("key size too large for bigint size, " + std::to_string(WORDCNT * 8) + " bytes");
+    return ret;
 }

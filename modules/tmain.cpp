@@ -34,7 +34,7 @@ int main(int argc, char **argv) // intended syntax: *.exe <keyfile> -sign/-vrfy 
         {
             pvk = parsePrvkeyFile(keyfn);
         }
-        catch (std::exception e)
+        catch (const std::exception &e)
         {
             std::cout << "error getting key, " << e.what() << "\n";
             return -1;
@@ -74,7 +74,7 @@ int main(int argc, char **argv) // intended syntax: *.exe <keyfile> -sign/-vrfy 
         {
             plk = parsePubkeyFile(keyfn);
         }
-        catch (std::exception e)
+        catch (const std::exception &e)
         {
             std::cout << "error getting key, " << e.what() << "\n";
             return -1;
@@ -82,6 +82,12 @@ int main(int argc, char **argv) // intended syntax: *.exe <keyfile> -sign/-vrfy 
         if (plk.NBytecount > (WORDCNT * 8))
         {
             std::cout << "key too large for bigint max size\n";
+            return -1;
+        }
+
+        if (plk.NBytecount - 2 - 1 - file_length(mesfn) < 8)
+        {
+            std::cout << "file too long for key of this size!\n";
             return -1;
         }
 
