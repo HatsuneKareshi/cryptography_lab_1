@@ -26,7 +26,7 @@ int main(int argc, char **argv) // main <keyfile> -enc/dec <source> <destination
         {
             plk = parsePubkeyFile(keyfn);
         }
-        catch (std::exception e)
+        catch (const std::exception &e)
         {
             std::cout << "error getting key, " << e.what() << "\n";
             return -1;
@@ -46,7 +46,7 @@ int main(int argc, char **argv) // main <keyfile> -enc/dec <source> <destination
         int padLength = plk.NBytecount - 2 - 1 - file_length(srcfn); // from hardcoded 64 bytes to whatever is in the length
         if (padLength < 8)                                           // at least 8 bytes of padding
         {
-            std::cout << "file too long for 64byte RSA!\n";
+            std::cout << "file too long for key of this size!\n";
             return -1;
         }
         for (int i = 0; i < padLength; i++)
@@ -74,7 +74,7 @@ int main(int argc, char **argv) // main <keyfile> -enc/dec <source> <destination
         {
             pvk = parsePrvkeyFile(keyfn);
         }
-        catch (std::exception e)
+        catch (const std::exception &e)
         {
             std::cout << "error getting key, " << e.what() << "\n";
             return -1;
