@@ -41,6 +41,12 @@ int main(int argc, char **argv) // intended syntax: *.exe <keyfile> -sign/-vrfy 
             return -1;
         }
 
+        if (file_length(mesfn) > 64)
+        {
+            std::cout << "this file is longer than what openSSL will accept as a hash (64 bytes)\n";
+            return -1;
+        }
+
         for (int i = 0; i < padLength; i++)
             signBytestream.push_back(0xFF); // padding. has to be 0xFF
         signBytestream.push_back(0x00);
@@ -78,6 +84,11 @@ int main(int argc, char **argv) // intended syntax: *.exe <keyfile> -sign/-vrfy 
         if (plk.NBytecount - 2 - 1 - file_length(mesfn) < 8)
         {
             std::cout << "file too long for key of this size!\n";
+            return -1;
+        }
+        if (file_length(mesfn) > 64)
+        {
+            std::cout << "this file is longer than what openSSL will accept as a hash (64 bytes)\n";
             return -1;
         }
 
