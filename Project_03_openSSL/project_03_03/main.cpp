@@ -7,7 +7,7 @@ int main(int argc, char **argv) // intended syntax: *.exe <keyfile> -sign/-vrfy 
 {
     if (argc != 5)
     {
-        std::cout << "wrong syntax, proper usage are: *.exe <keyfile> -sign <message> <signage>\n               -vrfy\n";
+        std::cout << "wrong syntax, proper usage are: \n*.exe <keyfile> -sign <message> <signage>\n                -vrfy\n";
         return -1;
     }
     if (strcmp("-sign", argv[2]) && strcmp("-vrfy", argv[2]))
