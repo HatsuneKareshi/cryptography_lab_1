@@ -3,6 +3,10 @@
 #include "base64_parser.h"
 #include <cstring>
 
+#include <cstdlib>
+#include <ctime>
+// these to allow for random padding
+
 // experimental implementation for task 2. expect more modifications to come later
 
 int main(int argc, char **argv) // main <keyfile> -enc/dec <source> <destination>
@@ -38,6 +42,8 @@ int main(int argc, char **argv) // main <keyfile> -enc/dec <source> <destination
             return -1;
         }
 
+        std::srand(std::time(nullptr)); // sets the random seed to moment of execution
+
         // std::cout << "N length bytes: " << plk.NBytecount << '\n';
 
         std::vector<uint8_t> cypherBytestream{};
@@ -50,7 +56,7 @@ int main(int argc, char **argv) // main <keyfile> -enc/dec <source> <destination
             return -1;
         }
         for (int i = 0; i < padLength; i++)
-            cypherBytestream.push_back(0xFF); // soo many Boyfriends AAAAAAAAAAAAAAAAAAAAAAAAAAAA (or 8 if theres 53 bytes of data);
+            cypherBytestream.push_back(uint8_t(std::rand() % 255) + 1); // this would have been 0xBF
         cypherBytestream.push_back(0x00);
         for (auto &b : get_byte_stream_from_file(srcfn))
             cypherBytestream.push_back(b);
